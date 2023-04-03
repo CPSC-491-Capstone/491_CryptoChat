@@ -6,9 +6,11 @@
   import { abi } from "../abi";
   import ChatMessage from "./ChatMessage.svelte";
   let chatHistory = writable([]);
-
+  //activeChat stucture: {friendname: "", publicKey: ""}
+  let activeChat = writable(null);
   let publicKey = writable("");
   let myUsername = writable("");
+  //myContract structure: {contract: "", publicKey: ""}
   let myContract = writable(null);
   let showLogin = true;
 
@@ -16,19 +18,21 @@
 
   setContext("chatHistory", chatHistory);
 
-  let getTestMessage = () => {
+  let getInput = () => {
+    //calculate time and date
+    let timestamp = new Date().toUTCString();
     let message = {
       text: document.querySelector("input[name=messageText]").value,
-      time: "12:00 pm",
-      user: "Joe",
+      time: timestamp,
+      user: myUsername,
     };
     return message;
   };
 
-  let sendTestMessage = () => {
-    let message = getMessage();
+  let updateChatHistory = () => {
+    let newMessage = getInput();
     chatHistory.update((messages) => {
-      return [...messages, message];
+      return [...messages, newMessage];
     });
   };
 
@@ -93,10 +97,11 @@
   }
 
   // Sends messsage to an user
-  async function sendMessage(data) {
+  async function sendMessage() {
     if (!(activeChat && activeChat.publicKey)) return;
     const recieverAddress = activeChat.publicKey;
-    await myContract.sendMessage(recieverAddress, data);
+    await myContract.sendMessage(recieverAddress, getInput());
+    updateChatHistory();
   }
 
   // Fetch chat messages with a friend
