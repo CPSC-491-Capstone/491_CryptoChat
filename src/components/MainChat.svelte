@@ -1,20 +1,16 @@
 <script>
   import { setContext } from "svelte";
-  import { writable } from "svelte/store";
   import { ethers } from "ethers";
-
   import { abi } from "../abi";
+  import {activeChat, chatHistory} from "../stores/store";
+  let publicKey = ""
+  let myUsername = ""
+//myContract structure: {contract: "", publicKey: ""}
+  let myContract = null;
   import ChatMessage from "./ChatMessage.svelte";
   import FriendList from "./FriendList.svelte";
   //import json file with demo data
   import demoChats from "../demoChats.json"
-  let chatHistory = writable([]);
-  //activeChat stucture: {friendname: "", friendPublicKey: ""}
-  let activeChat = writable({});
-  let publicKey = writable(activeChat.publicKey);
-  let myUsername = writable("");
-  //myContract structure: {contract: "", publicKey: ""}
-  let myContract = writable(null);
   let showLogin = true;
   let friends = []
   demoChats.chatlist.forEach((item) => {
@@ -110,9 +106,12 @@
 
   // Sends messsage to an user
   async function sendMessage() {
-    // if (!(activeChat && activeChat.publicKey)) return;
-    // const recieverAddress = activeChat.publicKey;
-    // await myContract.sendMessage(recieverAddress, getInput());
+   // if (!(activeChat && activeChat.publicKey)) return;
+   activeChat.subscribe((value) => {
+      console.log(value);
+    });
+    const recieverAddress = activeChat.publicKey;
+    await myContract.sendMessage(recieverAddress, getInput());
     updateChatHistory();
   }
 
@@ -133,7 +132,7 @@
     //     data: item[2],
     //   });
     // });
-    let messages = []
+    let messages = [];
     let chatToRender
     activeChat.subscribe((value) => {
       chatToRender = value;
@@ -156,7 +155,7 @@
     <button on:click={login} class="send-btn">Login</button>
   {:else}
     <p>{myUsername}</p>
-    <button on:click={getMessage} class="send-btn">Reload</button>
+    <button on:click={()=>getMessage("0xe8992a926aA0d5e1145d54E559eeCceEd7eAcFc4")} class="send-btn">Reload</button>
   {/if}
   <div class="chat-module">
     <FriendList friends={friends} />
@@ -166,6 +165,7 @@
       <div class="spacer" />
       {#each $chatHistory as message}
         <ChatMessage
+        
           messageText={message.text}
           messageTime={message.time}
           messageAuthor={message.author}
