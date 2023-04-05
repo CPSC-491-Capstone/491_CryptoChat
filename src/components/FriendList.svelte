@@ -1,12 +1,14 @@
 <script>
     import { getContext } from 'svelte'
     export let friends = []
+    export let reload;
     let activeChat = getContext("activeChat");
     let setActiveChat = (friendName, friendPublicKey) => {
         activeChat.set({
             "friendName": friendName,
             "friendPublicKey": friendPublicKey,
         });
+        reload();
     }
 </script>
 
@@ -30,6 +32,9 @@
         display: flex;
         flex-direction: column;
         border: 1px solid black;
-        background-color: #d1d1d1;
+        background-color: #4e4e4e;
+        color: rgb(202, 202, 202);
+        border-radius: 8px;
+        padding: 5px;
     }
 </style>

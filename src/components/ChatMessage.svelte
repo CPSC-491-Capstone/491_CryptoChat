@@ -25,6 +25,7 @@
         color: white;
         background-color: #208ceb;
         width: 30%;
+        border-radius: 8px;
     }
     
     .message *{
@@ -33,6 +34,4 @@
     .message-user {
         font-weight: bold;
     }
-
-
 </style>

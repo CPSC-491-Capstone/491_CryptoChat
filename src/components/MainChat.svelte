@@ -151,14 +151,16 @@
 </script>
 
 <div class="main-container">
-  {#if showLogin}
-    <button on:click={login} class="send-btn">Login</button>
-  {:else}
-    <p>{myUsername}</p>
-    <button on:click={()=>getMessage("0xe8992a926aA0d5e1145d54E559eeCceEd7eAcFc4")} class="send-btn">Reload</button>
-  {/if}
+  <div class="header">
+    {#if showLogin}
+      <button on:click={login} class="send-btn">Login</button>
+    {:else}
+      <p style="padding-right:1rem;">{myUsername}</p>
+      <button on:click={()=>getMessage("0xe8992a926aA0d5e1145d54E559eeCceEd7eAcFc4")} class="send-btn">Reload</button>
+    {/if}
+  </div>
   <div class="chat-module">
-    <FriendList friends={friends} />
+    <FriendList friends={friends} reload={getMessage} />
     <div class="chat-box">
       <!-- Chat messages will be rendered here -->
       <FriendList />
@@ -189,6 +191,17 @@
     height: 90vh;
     align-items: center;
   }
+
+  .header {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    color: white;
+    font-size:large;
+  }
+
   .chat-module {
     display: flex;
     flex-direction: row;
@@ -211,7 +224,7 @@
     font-size: medium;
     background-color: #3b4248;
     color: white;
-    width: 100%;
+    width: 80%;
     height: 50px;
   }
   .send-btn {
