@@ -1,12 +1,12 @@
 <script>
     export let messageText;
     export let messageTime;
-    export let messageUser;
+    export let messageAuthor;
 </script>
 
 <div class="message">
     <div class="message-user">
-        {messageUser}:
+        {messageAuthor}:
     </div>
     <div class="message-text">
         {messageText}
@@ -22,7 +22,9 @@
         flex-direction: row;
         align-items: flex-start;
         margin: 10px 0;
-        color: white
+        color: white;
+        background-color: #208ceb;
+        width: 30%;
     }
     
     .message *{
@@ -32,8 +34,5 @@
         font-weight: bold;
     }
 
-    .message-time {
-        font-size: 0.8rem;
-        color: #999;
-    }
+
 </style>

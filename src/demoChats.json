@@ -1,0 +1,82 @@
+{
+    "chatlist": [ 
+        {
+            "name": "John",
+            "publicKey": "0x1234567890",
+            "messages": [
+                {
+                    "author": "John",
+                    "text": "Hello, how are you?",
+                    "time": "2023-04-01 12:00:00"
+                },
+                {
+                    "author": "Jacob",
+                    "text": "Hi, I'm fine, thanks!",
+                    "time": "2023-04-01 12:01:00"
+                },
+                {
+                    "author": "John",
+                    "text": "What do you do?",
+                    "time": "2023-04-01 12:02:00"
+                },
+                {
+                    "author": "Jacob",
+                    "text": "I'm a programmer",
+                    "time": "2023-04-01 12:03:00"
+                }
+            ]
+        },
+        {
+            "name": "Chris",
+            "publicKey": "1x1234567890",
+            "messages": [
+                {
+                    "author": "Chris",
+                    "text": "Hey there",
+                    "time": "2023-04-01 12:00:00"
+                },
+                {
+                    "author": "Jacob",
+                    "text": "Hi Chris, how are you?",
+                    "time": "2023-04-01 12:01:00"
+                },
+                {
+                    "author": "Chris",
+                    "text": "I'm fine, thanks!",
+                    "time": "2023-04-01 12:02:00"
+                },
+                {
+                    "author": "Jacob",
+                    "text": "What's your favorite food?",
+                    "time": "2023-04-01 12:03:00"
+                },
+                {
+                    "author": "Chris",
+                    "text": "I like pizza",
+                    "time": "2023-04-01 12:04:00"
+                }
+            ]
+        },
+        {
+            "name": "Jessica",
+            "publicKey": "2x1234567890",
+            "messages": [
+                {
+                    "author": "Jessica",
+                    "text": "Hi Jacob",
+                    "time": "2023-04-01 12:00:00"
+                },
+                {
+                    "author": "Jacob",
+                    "text": "Hi Jessica, what's up?",
+                    "time": "2023-04-01 12:01:00"
+                },
+                {
+                    "author": "Jessica",
+                    "text": "Not much, just wanted to say hi",
+                    "time": "2023-04-01 12:02:00"
+                }
+            ]
+        }
+    ]
+}
