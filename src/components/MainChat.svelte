@@ -1,30 +1,38 @@
 <script>
   import { setContext } from "svelte";
-  import { writable } from "svelte/store";
   import { ethers } from "ethers";
-
   import { abi } from "../abi";
+  import {activeChat, chatHistory} from "../stores/store";
+  let publicKey = ""
+  let myUsername = ""
+//myContract structure: {contract: "", publicKey: ""}
+  let myContract = null;
   import ChatMessage from "./ChatMessage.svelte";
-  let chatHistory = writable([]);
-  //activeChat stucture: {friendname: "", publicKey: ""}
-  let activeChat = writable(null);
-  let publicKey = writable("");
-  let myUsername = writable("");
-  //myContract structure: {contract: "", publicKey: ""}
-  let myContract = writable(null);
+  import FriendList from "./FriendList.svelte";
+  //import json file with demo data
+  import demoChats from "../demoChats.json"
   let showLogin = true;
+  let friends = []
+  demoChats.chatlist.forEach((item) => {
+    friends.push({ "name": item.name, "publicKey": item.publicKey });
+  });
 
   const CONTRACT_ADDRESS = "0x0c66406F7453acd6C5EC963eB277667F6979c109";
 
+  setContext("activeChat", activeChat);
   setContext("chatHistory", chatHistory);
 
+  // let setActiveChat = () => {
+  //       let activeChat = getContext('activeChat')
+  //       activeChat.set({"friendName": friend.name, "friendPublicKey": friend.publicKey})
+  // }
+
   let getInput = () => {
-    //calculate time and date
     let timestamp = new Date().toUTCString();
     let message = {
       text: document.querySelector("input[name=messageText]").value,
       time: timestamp,
-      user: myUsername,
+      author: myUsername,
     };
     return message;
   };
@@ -98,59 +106,78 @@
 
   // Sends messsage to an user
   async function sendMessage() {
-    if (!(activeChat && activeChat.publicKey)) return;
-    const recieverAddress = activeChat.publicKey;
-    await myContract.sendMessage(recieverAddress, getInput());
+   // if (!(activeChat && activeChat.publicKey)) return;
+    // const recieverAddress = activeChat.publicKey;
+    // await myContract.sendMessage(recieverAddress, getInput());
     updateChatHistory();
   }
 
   // Fetch chat messages with a friend
   async function getMessage(friendsPublicKey) {
-    let nickname;
+    // let nickname;
+    // let messages = [];
+    // friends.forEach((item) => {
+    //   if (item.publicKey === friendsPublicKey) nickname = item.name;
+    // });
+    // // Get messages
+    // const data = await myContract.readMessage(friendsPublicKey);
+    // data.forEach((item) => {
+    //   const timestamp = new Date(1000 * item[1].toNumber()).toUTCString();
+    //   messages.push({
+    //     publicKey: item[0],
+    //     timeStamp: timestamp,
+    //     data: item[2],
+    //   });
+    // });
     let messages = [];
-    friends.forEach((item) => {
-      if (item.publicKey === friendsPublicKey) nickname = item.name;
+    let chatToRender
+    activeChat.subscribe((value) => {
+      chatToRender = value;
     });
-    // Get messages
-    const data = await myContract.readMessage(friendsPublicKey);
-    data.forEach((item) => {
-      const timestamp = new Date(1000 * item[1].toNumber()).toUTCString();
-      messages.push({
-        publicKey: item[0],
-        timeStamp: timestamp,
-        data: item[2],
-      });
+    demoChats.chatlist.forEach((item) => {
+      console.log("item.publicKey", item.publicKey);
+      if (item.publicKey === chatToRender.friendPublicKey) {
+        item.messages.forEach((message) => {
+          messages.push(message);
+        });
+      }
     });
+    chatHistory.set(messages);
 
-    // TODO: Jacob how should we do this lol
-    setActiveChat({ friendname: nickname, publicKey: friendsPublicKey });
-    chatHistory = messages;
   }
 </script>
 
 <div class="main-container">
-  {#if showLogin}
-    <button on:click={login} class="send-btn">Login</button>
-  {:else}
-    <p>{myUsername}</p>
-    <button on:click={getMessage} class="send-btn">Reload</button>
-  {/if}
-
-  <div class="chat-box">
-    <!-- Chat messages will be rendered here -->
-    <div class="spacer" />
-    {#each $chatHistory as message}
-      <ChatMessage
-        messageText={message.text}
-        messageTime={message.time}
-        messageUser={message.user}
-      />
-    {/each}
+  <div class="header">
+    {#if showLogin}
+      <button on:click={login} class="send-btn">Login</button>
+    {:else}
+      <p style="padding-right:1rem;">{myUsername}</p>
+      <button on:click={()=>getMessage("0xe8992a926aA0d5e1145d54E559eeCceEd7eAcFc4")} class="send-btn">Reload</button>
+    {/if}
   </div>
-  <form>
-    <input type="text" name="messageText" class="message-input" />
-    <button type="submit" on:click={sendMessage} class="send-btn">Send</button>
-  </form>
+  <div class="chat-module">
+    <FriendList friends={friends} reload={getMessage} />
+    <div class="chat-box">
+      <!-- Chat messages will be rendered here -->
+      <FriendList />
+      <div class="spacer" />
+      {#each $chatHistory as message}
+        <ChatMessage
+        
+          messageText={message.text}
+          messageTime={message.time}
+          messageAuthor={message.author}
+        />
+      {/each}
+      <form>
+        <input type="text" name="messageText" class="message-input" />
+        <button type="submit" on:click={sendMessage} class="send-btn">Send</button>
+      </form>
+    </div>
+  </div>
+
+  
 </div>
 
 <style>
@@ -158,8 +185,25 @@
   .main-container {
     display: flex;
     flex-direction: column;
-    height: 95vh;
+    height: 90vh;
     align-items: center;
+  }
+
+  .header {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    color: white;
+    font-size:large;
+  }
+
+  .chat-module {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
   }
 
   .spacer {
@@ -167,11 +211,9 @@
   }
   .chat-box {
     display: flex;
-    width: 30%;
     flex-direction: column;
     overflow: auto;
     flex-grow: 1;
-    align-items: flex-end;
   }
 
   .message-input {
@@ -179,7 +221,7 @@
     font-size: medium;
     background-color: #3b4248;
     color: white;
-    width: 50rem;
+    width: 80%;
     height: 50px;
   }
   .send-btn {
