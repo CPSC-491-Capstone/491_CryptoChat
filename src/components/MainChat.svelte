@@ -107,11 +107,8 @@
   // Sends messsage to an user
   async function sendMessage() {
    // if (!(activeChat && activeChat.publicKey)) return;
-   activeChat.subscribe((value) => {
-      console.log(value);
-    });
-    const recieverAddress = activeChat.publicKey;
-    await myContract.sendMessage(recieverAddress, getInput());
+    // const recieverAddress = activeChat.publicKey;
+    // await myContract.sendMessage(recieverAddress, getInput());
     updateChatHistory();
   }
 

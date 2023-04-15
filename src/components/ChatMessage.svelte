@@ -24,7 +24,8 @@
         margin: 10px 0;
         color: white;
         background-color: #208ceb;
-        width: 30%;
+        width: 50%;
+        min-height: 2rem;
         border-radius: 8px;
     }
     
