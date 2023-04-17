@@ -15,39 +15,32 @@
 </script>
 
 <div class={senderStyle()}>
-    <div class="message-user">
-        {messageAuthor}:
-    </div>
     <div class="message-text">
         {messageText}
-    </div>
-    <div class="message-time">
-        {messageTime}
     </div>
 </div>
 
 <style>
-    .user {
+    .user, .friend {
         display: flex;
         flex-direction: row;
         align-items: flex-start;
         margin: 10px 0;
+        width: auto;
+        min-height: 2rem;
+        border-radius: 8px;
+        padding: 0 10px;
+    }
+    .user {
         color: white;
         background-color: #208ceb;
-        width: 50%;
-        min-height: 2rem;
-        border-radius: 8px;
+        margin-left: auto;
     }
+    
     .friend {
-        display: flex;
-        flex-direction: row;
-        align-items: flex-start;
-        margin: 10px 0;
         color: white;
-        background-color: #00ff8c;
-        width: 50%;
-        min-height: 2rem;
-        border-radius: 8px;
+        background-color: #242524;
+        margin-right: auto;
     }
     
     .user *{

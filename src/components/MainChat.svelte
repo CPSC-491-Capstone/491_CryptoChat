@@ -163,14 +163,16 @@
       <!-- Chat messages will be rendered here -->
       <FriendList />
       <div class="spacer" />
-      {#each $chatHistory as message}
-        <ChatMessage
-          messageText={message.text}
-          messageTime={message.time}
-          messageAuthor={message.author}
-          isUser={message.author === myUsername}
-        />
-      {/each}
+      <div class="message-group">
+        {#each $chatHistory as message}
+          <ChatMessage
+            messageText={message.text}
+            messageTime={message.time}
+            messageAuthor={message.author}
+            isUser={message.author === myUsername}
+          />
+        {/each}
+    </div>
       <form>
         <input type="text" name="messageText" class="message-input" />
         <button type="submit" on:click={sendMessage} class="send-btn">Send</button>
@@ -182,7 +184,11 @@
 </div>
 
 <style>
-  /* make button rounded style */
+  .message-group {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+  }
   .main-container {
     display: flex;
     flex-direction: column;
