@@ -22,6 +22,7 @@
   setContext("activeChat", activeChat);
   setContext("chatHistory", chatHistory);
 
+
   // let setActiveChat = () => {
   //       let activeChat = getContext('activeChat')
   //       activeChat.set({"friendName": friend.name, "friendPublicKey": friend.publicKey})
@@ -34,6 +35,7 @@
       time: timestamp,
       author: myUsername,
     };
+    console.log(myUsername);
     return message;
   };
 
@@ -106,9 +108,9 @@
 
   // Sends messsage to an user
   async function sendMessage() {
-   // if (!(activeChat && activeChat.publicKey)) return;
-    // const recieverAddress = activeChat.publicKey;
-    // await myContract.sendMessage(recieverAddress, getInput());
+  //  if (!($activeChat && $activeChat.friendPublicKey)) return;
+  //   const recieverAddress = activeChat.friendPublicKey;
+  //   await myContract.sendMessage(recieverAddress, getInput());
     updateChatHistory();
   }
 
@@ -135,7 +137,6 @@
       chatToRender = value;
     });
     demoChats.chatlist.forEach((item) => {
-      console.log("item.publicKey", item.publicKey);
       if (item.publicKey === chatToRender.friendPublicKey) {
         item.messages.forEach((message) => {
           messages.push(message);
@@ -164,10 +165,10 @@
       <div class="spacer" />
       {#each $chatHistory as message}
         <ChatMessage
-        
           messageText={message.text}
           messageTime={message.time}
           messageAuthor={message.author}
+          isUser={message.author === myUsername}
         />
       {/each}
       <form>
