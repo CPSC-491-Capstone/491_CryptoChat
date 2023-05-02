@@ -1,5 +1,4 @@
 <script>
-    import { getContext } from "svelte";
     export let messageText;
     export let messageTime;
     export let messageAuthor;
