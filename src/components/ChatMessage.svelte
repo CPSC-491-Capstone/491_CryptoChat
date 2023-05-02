@@ -1,11 +1,9 @@
 <script>
     export let messageText;
     export let messageTime;
-    export let messageAuthor;
     export let isUser;
 
     const senderStyle = () => {
-        console.log(messageAuthor)
         if (isUser) {
             return "user";
         } else {
