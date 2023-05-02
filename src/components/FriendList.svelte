@@ -1,14 +1,13 @@
 <script>
-    import { getContext } from 'svelte'
+    import { activeChat } from "../stores/store";
     export let friends = []
     export let reload;
-    let activeChat = getContext("activeChat");
     let setActiveChat = (friendName, friendPublicKey) => {
         activeChat.set({
             "friendName": friendName,
             "friendPublicKey": friendPublicKey,
         });
-        reload();
+        reload($activeChat.friendPublicKey);
     }
 </script>
 
@@ -54,5 +53,6 @@
         padding: 1rem;
         width: 100%;
         border: 1px solid #000;
+        cursor: pointer;
     }
 </style>
