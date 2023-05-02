@@ -92,7 +92,7 @@
       try {
         await myContract.addFriend(publicKey, name);
         const frnd = { name: name, publicKey: publicKey };
-        setFriends(friends.concat(frnd));
+        friends = [...friends, frnd];
       } catch (err) {
         alert(
           "Friend already added! You can't be friends with the same person twice ;P"
@@ -105,9 +105,13 @@
 
   // Sends messsage to an user
   async function sendMessage() {
-    //  if (!($activeChat && $activeChat.friendPublicKey)) return;
-    //   const recieverAddress = activeChat.friendPublicKey;
-    //   await myContract.sendMessage(recieverAddress, getInput());
+     if (!($activeChat && $activeChat.friendPublicKey)) return;
+     try { 
+      const recieverAddress = $activeChat.friendPublicKey;
+      await myContract.sendMessage(recieverAddress, getInput().text);
+    } catch (error) {
+      console.error("An error occurred while sending the message:", error);
+    }
     updateChatHistory();
   }
 
@@ -133,6 +137,7 @@
     }
     chatHistory.set(messages);
   }
+
   // Fetches the friend list of the user
   async function getFriendList() {
     try {
@@ -184,7 +189,6 @@
       <div class="message-group">
         {#each $chatHistory as message}
           <ChatMessage
-            messageAuthor={message.author}
             messageText={message.text}
             messageTime={message.time}
             isUser={message.author === myUsername}
