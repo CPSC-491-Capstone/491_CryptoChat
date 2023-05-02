@@ -3,12 +3,14 @@
   import { ethers } from "ethers";
   import { abi } from "../abi";
   import {activeChat, chatHistory} from "../stores/store";
-  let publicKey = ""
-  let myUsername = ""
-//myContract structure: {contract: "", publicKey: ""}
-  let myContract = null;
   import ChatMessage from "./ChatMessage.svelte";
   import FriendList from "./FriendList.svelte";
+  import AddFriendModal from "./AddFriendModal.svelte";
+  let publicKey = ""
+  let myUsername = ""
+  let showModal = false;
+  //myContract structure: {contract: "", publicKey: ""}
+  let myContract = null;
   //import json file with demo data
   import demoChats from "../demoChats.json"
   let showLogin = true;
@@ -17,7 +19,7 @@
     friends.push({ "name": item.name, "publicKey": item.publicKey });
   });
 
-  const CONTRACT_ADDRESS = "0x0c66406F7453acd6C5EC963eB277667F6979c109";
+  const CONTRACT_ADDRESS = "0x9e2a714eAD4AF0bD22C3b1D8A62EA9Af1c38f159";
 
   setContext("activeChat", activeChat);
   setContext("chatHistory", chatHistory);
@@ -27,6 +29,15 @@
   //       let activeChat = getContext('activeChat')
   //       activeChat.set({"friendName": friend.name, "friendPublicKey": friend.publicKey})
   // }
+  const addFriend = () => {
+    let friendName = document.querySelector("input[name=friendName]").value;
+    let friendPublicKey = document.querySelector("input[name=friendPublicKey]").value;
+    addChat(friendName, friendPublicKey);
+    document.querySelector("input[name=friendName]").value = "";
+    document.querySelector("input[name=friendPublicKey]").value = "";
+    showModal = false;
+    dialog.close(); 
+  };
 
   let getInput = () => {
     let timestamp = new Date().toUTCString();
@@ -35,7 +46,6 @@
       time: timestamp,
       author: myUsername,
     };
-    console.log(myUsername);
     return message;
   };
 
@@ -68,6 +78,7 @@
         showLogin = false;
       } catch (err) {
         alert("CONTRACT_ADDRESS not set properly!");
+        console.error("Error in contract interaction:", err);
       }
     } else {
       alert("Couldn't connect to Metamask");
@@ -89,7 +100,7 @@
     try {
       let present = await myContract.checkUserExists(publicKey);
       if (!present) {
-        alert("Address not found: Ask them to join the app :)");
+         alert("Address not found: Ask them to join the app :)");
         return;
       }
       try {
@@ -111,7 +122,7 @@
   //  if (!($activeChat && $activeChat.friendPublicKey)) return;
   //   const recieverAddress = activeChat.friendPublicKey;
   //   await myContract.sendMessage(recieverAddress, getInput());
-    updateChatHistory();
+       updateChatHistory();
   }
 
   // Fetch chat messages with a friend
@@ -154,9 +165,20 @@
       <button on:click={login} class="send-btn">Login</button>
     {:else}
       <p style="padding-right:1rem;">{myUsername}</p>
-      <button on:click={()=>getMessage("0xe8992a926aA0d5e1145d54E559eeCceEd7eAcFc4")} class="send-btn">Reload</button>
+      <button on:click={()=>(showModal = true)} class="send-btn">Add Friend</button>
     {/if}
   </div>
+  <!-- Modal -->
+  <AddFriendModal bind:showModal>
+			<form>
+				<label for="friendName">Friend Name</label>
+				<input type="text" id="friend-name" name="friendName" />
+        <label for="friendPublicKey">Friend Address</label>
+        <input type="text" id="friend-address" name="friendPublicKey" />
+			</form>
+			<button on:click={() => addFriend()} type="submit">Submit</button>
+	</AddFriendModal>
+  <!-- Chat box -->
   <div class="chat-module">
     <FriendList friends={friends} reload={getMessage} />
     <div class="chat-box">
