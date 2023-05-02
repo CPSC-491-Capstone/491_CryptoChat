@@ -5,6 +5,7 @@
     export let isUser;
 
     const senderStyle = () => {
+        console.log(messageAuthor)
         if (isUser) {
             return "user";
         } else {

@@ -1,42 +1,28 @@
 <script>
-  import { setContext } from "svelte";
   import { ethers } from "ethers";
   import { abi } from "../abi";
-  import {activeChat, chatHistory} from "../stores/store";
+  import { activeChat, chatHistory } from "../stores/store";
   import ChatMessage from "./ChatMessage.svelte";
   import FriendList from "./FriendList.svelte";
   import AddFriendModal from "./AddFriendModal.svelte";
-  let publicKey = ""
-  let myUsername = ""
+  let publicKey = "";
+  let myUsername = "";
   let showModal = false;
-  //myContract structure: {contract: "", publicKey: ""}
   let myContract = null;
-  //import json file with demo data
-  import demoChats from "../demoChats.json"
   let showLogin = true;
-  let friends = []
-  demoChats.chatlist.forEach((item) => {
-    friends.push({ "name": item.name, "publicKey": item.publicKey });
-  });
-
+  let friends = [];
   const CONTRACT_ADDRESS = "0x9e2a714eAD4AF0bD22C3b1D8A62EA9Af1c38f159";
 
-  setContext("activeChat", activeChat);
-  setContext("chatHistory", chatHistory);
-
-
-  // let setActiveChat = () => {
-  //       let activeChat = getContext('activeChat')
-  //       activeChat.set({"friendName": friend.name, "friendPublicKey": friend.publicKey})
-  // }
   const addFriend = () => {
     let friendName = document.querySelector("input[name=friendName]").value;
-    let friendPublicKey = document.querySelector("input[name=friendPublicKey]").value;
+    let friendPublicKey = document.querySelector(
+      "input[name=friendPublicKey]"
+    ).value;
     addChat(friendName, friendPublicKey);
     document.querySelector("input[name=friendName]").value = "";
     document.querySelector("input[name=friendPublicKey]").value = "";
     showModal = false;
-    dialog.close(); 
+    dialog.close();
   };
 
   let getInput = () => {
@@ -100,7 +86,7 @@
     try {
       let present = await myContract.checkUserExists(publicKey);
       if (!present) {
-         alert("Address not found: Ask them to join the app :)");
+        alert("Address not found: Ask them to join the app :)");
         return;
       }
       try {
@@ -119,68 +105,78 @@
 
   // Sends messsage to an user
   async function sendMessage() {
-  //  if (!($activeChat && $activeChat.friendPublicKey)) return;
-  //   const recieverAddress = activeChat.friendPublicKey;
-  //   await myContract.sendMessage(recieverAddress, getInput());
-       updateChatHistory();
+    //  if (!($activeChat && $activeChat.friendPublicKey)) return;
+    //   const recieverAddress = activeChat.friendPublicKey;
+    //   await myContract.sendMessage(recieverAddress, getInput());
+    updateChatHistory();
   }
 
   // Fetch chat messages with a friend
   async function getMessage(friendsPublicKey) {
-    // let nickname;
-    // let messages = [];
-    // friends.forEach((item) => {
-    //   if (item.publicKey === friendsPublicKey) nickname = item.name;
-    // });
-    // // Get messages
-    // const data = await myContract.readMessage(friendsPublicKey);
-    // data.forEach((item) => {
-    //   const timestamp = new Date(1000 * item[1].toNumber()).toUTCString();
-    //   messages.push({
-    //     publicKey: item[0],
-    //     timeStamp: timestamp,
-    //     data: item[2],
-    //   });
-    // });
     let messages = [];
-    let chatToRender
-    activeChat.subscribe((value) => {
-      chatToRender = value;
-    });
-    demoChats.chatlist.forEach((item) => {
-      if (item.publicKey === chatToRender.friendPublicKey) {
-        item.messages.forEach((message) => {
-          messages.push(message);
-        });
-      }
-    });
+    // Get messages
+    try {
+      const data = await myContract.readMessage(friendsPublicKey);
+      const messagePromises = data.map(async (item) => {
+        const timestamp = new Date(1000 * item[1].toNumber()).toUTCString();
+        const author = await myContract.getUsername(item[0]);
+        return {
+          author: author,
+          publicKey: item[0],
+          time: timestamp,
+          text: item[2],
+        };
+      });
+      messages = await Promise.all(messagePromises);
+    } catch (error) {
+      console.error("An error occurred while fetching the messages:", error);
+    }
     chatHistory.set(messages);
-
+  }
+  // Fetches the friend list of the user
+  async function getFriendList() {
+    try {
+      const friendList = await myContract.getMyFriendList();
+      // populate the friends with the friend list
+      friendList.forEach((item) => {
+        friends = [...friends, { name: item[1], publicKey: item[0] }];
+      });
+    } catch (error) {
+      console.error("An error occurred while fetching the friend list:", error);
+    }
   }
 </script>
 
 <div class="main-container">
   <div class="header">
     {#if showLogin}
-      <button on:click={login} class="send-btn">Login</button>
+      <button
+        on:click={() =>
+          login().then(() => {
+            getFriendList();
+          })}
+        class="send-btn">Login</button
+      >
     {:else}
       <p style="padding-right:1rem;">{myUsername}</p>
-      <button on:click={()=>(showModal = true)} class="send-btn">Add Friend</button>
+      <button on:click={() => (showModal = true)} class="send-btn"
+        >Add Friend</button
+      >
     {/if}
   </div>
   <!-- Modal -->
   <AddFriendModal bind:showModal>
-			<form>
-				<label for="friendName">Friend Name</label>
-				<input type="text" id="friend-name" name="friendName" />
-        <label for="friendPublicKey">Friend Address</label>
-        <input type="text" id="friend-address" name="friendPublicKey" />
-			</form>
-			<button on:click={() => addFriend()} type="submit">Submit</button>
-	</AddFriendModal>
+    <form>
+      <label for="friendName">Friend Name</label>
+      <input type="text" id="friend-name" name="friendName" />
+      <label for="friendPublicKey">Friend Address</label>
+      <input type="text" id="friend-address" name="friendPublicKey" />
+    </form>
+    <button on:click={() => addFriend()} type="submit">Submit</button>
+  </AddFriendModal>
   <!-- Chat box -->
   <div class="chat-module">
-    <FriendList friends={friends} reload={getMessage} />
+    <FriendList {friends} reload={getMessage} />
     <div class="chat-box">
       <!-- Chat messages will be rendered here -->
       <FriendList />
@@ -188,21 +184,21 @@
       <div class="message-group">
         {#each $chatHistory as message}
           <ChatMessage
+            messageAuthor={message.author}
             messageText={message.text}
             messageTime={message.time}
-            messageAuthor={message.author}
             isUser={message.author === myUsername}
           />
         {/each}
-    </div>
+      </div>
       <form>
         <input type="text" name="messageText" class="message-input" />
-        <button type="submit" on:click={sendMessage} class="send-btn">Send</button>
+        <button type="submit" on:click={sendMessage} class="send-btn"
+          >Send</button
+        >
       </form>
     </div>
   </div>
-
-  
 </div>
 
 <style>
@@ -225,7 +221,7 @@
     justify-content: flex-end;
     align-items: center;
     color: white;
-    font-size:large;
+    font-size: large;
   }
 
   .chat-module {
