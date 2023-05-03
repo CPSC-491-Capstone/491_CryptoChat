@@ -105,8 +105,8 @@
 
   // Sends messsage to an user
   async function sendMessage() {
-     if (!($activeChat && $activeChat.friendPublicKey)) return;
-     try { 
+    if (!($activeChat && $activeChat.friendPublicKey)) return;
+    try {
       const recieverAddress = $activeChat.friendPublicKey;
       await myContract.sendMessage(recieverAddress, getInput().text);
     } catch (error) {
@@ -167,6 +167,12 @@
       <button on:click={() => (showModal = true)} class="send-btn"
         >Add Friend</button
       >
+      {#if $activeChat}
+        <button
+          on:click={() => getMessage($activeChat.friendPublicKey)}
+          class="send-btn">Refresh</button
+        >
+      {/if}
     {/if}
   </div>
   <!-- Modal -->
